@@ -1,0 +1,12 @@
+{
+    "exec": "ts-node ./src/main.ts",
+    "verbose": true,
+    "watch": [
+        "main.js",
+        "src"
+    ],
+    "execMap": {
+        "js": "npm -v"
+    },
+    "ext": "ts, json"
+}
