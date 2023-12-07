@@ -143,6 +143,7 @@ const parser = (data: RawData, roomId: number): DanmuMsg => {
       }, emoctionDict)
     }
   }
+  
   return {
     user: {
       uid: rawData[2][0],

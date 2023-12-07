@@ -1,6 +1,27 @@
+import { intToColorHex } from './utils/color'
+
 type ValueAtPath<T> = T extends { [key: string]: any } ? ValueAtPath<T[keyof T]> : T
 
-function getValueByPath<T>(data: any, path: Array<string | number>): ValueAtPath<T> | undefined {
+export type MappingPath = Array<string | number>
+
+export type MappingItem =
+  | {
+      type: 'data' | 'color'
+      path: MappingPath
+    }
+  | {
+      type: 'dataCall'
+      path: MappingPath
+      call(value: any): any
+    }
+  | {
+      type: 'nested'
+      nested: Record<string, MappingItem> | MappingItem[]
+    }
+
+export type Mapping = Record<string, MappingItem>
+
+function getValueByPath<T>(data: any, path: MappingPath): ValueAtPath<T> | undefined {
   let result: any = data
 
   for (const key of path) {
@@ -14,26 +35,22 @@ function getValueByPath<T>(data: any, path: Array<string | number>): ValueAtPath
   return result
 }
 
-export interface Mapping {
-  [key: string]: {
-    path: Array<string | number>
-    nestedMapping?: Mapping // 可选的嵌套映射
-  }
-}
-
-export function transformObject(data: any, mapping: Mapping): { [key: string]: any } {
-  const result: { [key: string]: any } = {}
-
+export function transform(data: any, mapping: Mapping | MappingItem[]): { [key: string]: any } {
+  const result: { [key: string]: any } = Array.isArray(mapping) ? [] : {}
   for (const key in mapping) {
-    if (mapping.hasOwnProperty(key)) {
-      const path = mapping[key].path
-      const value = getValueByPath(data, path)
-
-      if (value !== undefined && typeof value === 'object' && mapping[key].nestedMapping) {
-        // 仅在存在嵌套映射时才递归
-        result[key] = transformObject(value, mapping[key].nestedMapping!)
+    const map: MappingItem = mapping[key]
+    if (map.type === 'nested') {
+      result[key] = transform(data, map.nested)
+    } else {
+      let value = getValueByPath(data, map.path)
+      if (value === undefined) {
+        result[key] = undefined
+        return
+      }
+      if (map.type === 'dataCall') {
+        result[key] = map.call(value)
       } else {
-        result[key] = value
+        result[key] = map.type === 'color' ? intToColorHex(value) : value
       }
     }
   }

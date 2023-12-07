@@ -1,52 +1,12 @@
 import { KeepLiveTCP, LiveOptions, LiveTCP, TCPOptions } from 'bilibili-live-ws'
 import { parser } from './transform/DANMU_MSG'
-import { Mapping, transformObject } from './transform'
+import { Mapping, MappingItem, transform } from './transform'
+import { EVENTS } from './types/app'
 
 interface Monitor {
   live: KeepLiveTCP
   roomId: number
   connect(): KeepLiveTCP
-}
-
-enum EVENTS {
-  // 基础的一些事件
-  OPEN = 'open',
-  LIVE = 'live',
-  HEART_BEAT = 'heartbeat',
-  MSG = 'msg',
-  CLOSE = 'close',
-  ERROR = 'error',
-
-  // 原始数据
-  MESSAGE = 'message', //
-
-  // 弹幕类
-  DANMU_MSG = 'DANMU_MSG', //	弹幕消息
-  WELCOME_GUARD = 'WELCOME_GUARD', //	欢迎xxx老爷
-  ENTRY_EFFECT = 'ENTRY_EFFECT', //	欢迎舰长进入房间
-  WELCOME = 'WELCOME', //	欢迎xxx进入房间
-  SUPER_CHAT_MESSAGE_JPN = 'SUPER_CHAT_MESSAGE_JPN',
-  SUPER_CHAT_MESSAGE = 'SUPER_CHAT_MESSAGE', //	二个都是SC留言
-
-  //礼物类
-  SEND_GIFT = 'SEND_GIFT', //	投喂礼物
-  COMBO_SEND = 'COMBO_SEND', //	连击礼物
-
-  // 天选之人类
-  ANCHOR_LOT_START = 'ANCHOR_LOT_START', //	天选之人开始完整信息
-  ANCHOR_LOT_END = 'ANCHOR_LOT_END', //	天选之人获奖id
-  ANCHOR_LOT_AWARD = 'ANCHOR_LOT_AWARD', //	天选之人获奖完整信息
-
-  // 上船类
-  GUARD_BUY = 'GUARD_BUY', //	上舰长
-  USER_TOAST_MSG = 'USER_TOAST_MSG', //	续费了舰长
-  NOTICE_MSG = 'NOTICE_MSG', //	在本房间续费了舰长
-
-  // 分区排行类
-  ACTIVITY_BANNER_UPDATE_V2 = 'ACTIVITY_BANNER_UPDATE_V2', // 小时榜变动
-
-  // 关注数变化类
-  ROOM_REAL_TIME_MESSAGE_UPDATE = 'ROOM_REAL_TIME_MESSAGE_UPDATE' // 粉丝关注变动
 }
 
 class Monitor {
@@ -65,9 +25,7 @@ const log = (...args: any[]) => {
   console.log(...args)
 }
 
-const options: LiveOptions = {
-  uid: 0
-}
+const options: LiveOptions = {}
 
 function traverseObject(arr: any[], output: any[] = []) {
   for (const key in arr) {
@@ -77,23 +35,178 @@ function traverseObject(arr: any[], output: any[] = []) {
   return output
 }
 
-const config: Mapping = {
-  uid: {
-    path: [2, 0]
-  },
-  uname: {
-    path: [2, 1]
-  },
-  face: {
-    path: [0, 15, 'user', 'base', 'face'],
-    nestedMapping: {
-      name: {
+function getEmoji(extra) {
+  const shouldParseInMessageEmoticon = /\[.*?\]/.test(extra.content)
+  let inMessageEmoticon
+  if (shouldParseInMessageEmoticon) {
+    const emoctionDict: Record<
+      string,
+      {
+        id: string
+        emoticon_id: number
+        height: number
+        width: number
+        url: string
+        description: string
+      }
+    > = {}
+    if (extra.emots) {
+      inMessageEmoticon = Object.keys(extra.emots).reduce((acc, key) => {
+        const emoticon = extra.emots[key]
+        acc[key] = {
+          id: emoticon.emoticon_unique,
+          emoticon_id: emoticon.emoticon_id,
+          height: emoticon.height,
+          width: emoticon.width,
+          url: emoticon.url,
+          description: emoticon.descript
+        }
+        return acc
+      }, emoctionDict)
+    }
+  }
+  return inMessageEmoticon
+}
+
+const map: Mapping = {
+  user: {
+    type: 'nested',
+    nested: {
+      uid: {
+        type: 'data',
+        path: [2, 0]
+      },
+      uname: {
+        type: 'data',
+        path: [2, 1]
+      },
+      face: {
+        type: 'data',
         path: [0, 15, 'user', 'base']
+      },
+
+      badge: {
+        type: 'nested',
+        nested: {
+          active: {
+            type: 'dataCall',
+            path: [3, 7],
+            call: (val) => val !== 12632256
+          },
+          name: {
+            type: 'data',
+            path: [3, 1]
+          },
+          level: {
+            type: 'data',
+            path: [3, 0]
+          },
+          color: {
+            type: 'color',
+            path: [3, 4]
+          },
+          gradient: {
+            type: 'nested',
+            nested: [
+              {
+                type: 'color',
+                path: [3, 7]
+              },
+              {
+                type: 'color',
+                path: [3, 8]
+              },
+              {
+                type: 'color',
+                path: [3, 9]
+              }
+            ]
+          },
+          anchor: {
+            type: 'nested',
+            nested: {
+              uid: {
+                type: 'data',
+                path: [3, 12]
+              },
+              uname: {
+                type: 'data',
+                path: [3, 2]
+              },
+              room_id: {
+                type: 'data',
+                path: [3, 2]
+              },
+              is_same_room: {
+                type: 'data',
+                path: [3, 3]
+              }
+            }
+          }
+        }
+      },
+      identity: {
+        type: 'nested',
+        nested: {
+          rank: {
+            type: 'data',
+            path: [4, 4]
+          },
+          guard_level: {
+            type: 'data',
+            path: [4, 4]
+          },
+          room_admin: {
+            type: 'dataCall',
+            path: [2, 2],
+            call: (val) => val === 1
+          }
+        }
       }
     }
+  },
+  timestamp: {
+    type: 'data',
+    path: [0, 4]
+  },
+  lottery: {
+    type: 'dataCall',
+    path: [0, 9],
+    call: (val) => val !== 0
+  },
+  content: {
+    type: 'data',
+    path: [1]
+  },
+  emoticon: {
+    type: 'nested',
+    nested: {
+      id: {
+        type: 'data',
+        path: [0, 13, 'emoticon_unique']
+      },
+      height: {
+        type: 'data',
+        path: [0, 13, 'height']
+      },
+      width: {
+        type: 'data',
+        path: [0, 13, 'width']
+      },
+      url: {
+        type: 'data',
+        path: [0, 13, 'url']
+      }
+    }
+  },
+  in_message_emoticon: {
+    type: 'dataCall',
+    path: [0, 15, 'extra'],
+    call: (val) => getEmoji(JSON.parse(val))
   }
 }
 
-new Monitor(37527, options).live.on(EVENTS.DANMU_MSG, (data: any) => {
-  log(transformObject(data.info, config))
+new Monitor(6154037, options).live.on(EVENTS.DANMU_MSG, (data: any) => {
+  // log(JSON.stringify(transform(data.info, map)))
+  log(transform(data.info, map))
 })
