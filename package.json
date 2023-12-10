@@ -2,9 +2,9 @@
   "name": "maho-danmaku-tcp",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/main.ts",
+  "main": "./src/index.ts",
   "scripts": {
-    "dev": "ts-node ./src/main.ts",
+    "dev": "ts-node ./src/index.ts",
     "dev:watch": "nodemon"
   },
   "keywords": [],
@@ -12,7 +12,9 @@
   "license": "ISC",
   "dependencies": {
     "@types/node": "^20.10.3",
+    "axios": "^1.6.2",
     "bilibili-live-ws": "^6.3.1",
+    "log4js": "^6.9.1",
     "nodemon": "^3.0.2",
     "protobufjs": "^7.2.5",
     "reflect-metadata": "^0.1.13",

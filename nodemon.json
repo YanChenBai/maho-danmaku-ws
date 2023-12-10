@@ -1,12 +1,12 @@
 {
-    "exec": "ts-node ./src/main.ts",
+    "exec": "ts-node ./src/index.ts",
     "verbose": true,
     "watch": [
-        "main.js",
+        "index.ts",
         "src"
     ],
     "execMap": {
-        "js": "npm -v"
+        "js": "pnpm -v"
     },
     "ext": "ts, json"
 }
