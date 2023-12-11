@@ -1,9 +1,9 @@
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import { getEncodeHeader } from './encode'
-import type { BiliRequestConfig, CreateApiOptions } from '../types/api'
 import { CODE_MESSAGE } from './error-code'
 import { logger } from './logger'
+import { BiliRequestConfig, CreateApiOptions } from '../types'
 
 export function createApi(options: CreateApiOptions) {
   const { baseURL, appKey, appSecret } = options
@@ -16,7 +16,6 @@ export function createApi(options: CreateApiOptions) {
   // 鉴权加密处理headers，下次请求自动带上
   api.interceptors.request.use((config) => {
     const headers = getEncodeHeader(config.data, appKey, appSecret)
-    logger.info(headers)
     config.headers = headers as any
     return config
   })
