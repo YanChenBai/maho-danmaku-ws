@@ -2,8 +2,8 @@
   "name": "maho-danmaku-ws",
   "version": "1.0.0",
   "description": "",
-  "main": "./dist/index.js",
-  "typings": "./dist//types/index.d.ts",
+  "main": "./lib/index.js",
+  "typings": "./lib/types/index.d.ts",
   "scripts": {
     "dev": "ts-node ./src/index.ts",
     "dev:watch": "nodemon",
