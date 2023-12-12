@@ -1,4 +1,4 @@
-import BiliLiveWS, { LiveWS } from './bili-live-ws'
+import { LiveWS } from 'bilibili-live-ws'
 import { logger } from './utils/logger'
 import {
   BiliRequestConfig,
@@ -60,7 +60,7 @@ class Monitor {
 
     const { wss_link, auth_body } = data.websocket_info
     // 开始连接
-    this.live = new BiliLiveWS.LiveWS(0, {
+    this.live = new LiveWS(0, {
       address: wss_link[0],
       authBody: JSON.parse(auth_body)
     })

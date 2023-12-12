@@ -1,9 +1,9 @@
-import axios from 'axios'
 import type { AxiosResponse } from 'axios'
 import { getEncodeHeader } from './encode'
 import { CODE_MESSAGE } from './error-code'
 import { logger } from './logger'
 import { BiliRequestConfig, CreateApiOptions } from '../types'
+import axios from 'axios'
 
 export function createApi(options: CreateApiOptions) {
   const { baseURL, appKey, appSecret } = options
