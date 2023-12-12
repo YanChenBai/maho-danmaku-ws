@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { LiveWS } from 'bilibili-live-ws';
+import { LiveWS } from './bili-live-ws';
 import { BiliRequestConfig, BiliStart, CreateApiOptions, DM, Gift, SuperChat, SuperChatDel, GuardBuy, Like } from './types';
 import { AxiosInstance, AxiosResponse } from 'axios';
 /** 弹幕监听器 */
