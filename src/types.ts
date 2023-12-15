@@ -1,9 +1,11 @@
 /** 创建api的配置 */
-export interface CreateApiOptions {
+export interface MahoOptions {
+  /** 服务器地址 */
   baseURL: string
-  appKey: string
-  appSecret: string
-  appId: number
+  /** 身份码 */
+  code: string
+  /** 密钥 */
+  token: string
 }
 
 /** 开平的响应结构 */

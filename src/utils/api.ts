@@ -1,11 +1,10 @@
 import axios from 'axios'
 import type { AxiosResponse } from 'axios'
-import { getEncodeHeader } from './encode'
 import { CODE_MESSAGE } from './error-code'
-import { BiliRequestConfig, CreateApiOptions } from '../types'
+import { BiliRequestConfig, MahoOptions } from '../types'
 
-export function createApi(options: CreateApiOptions) {
-  const { baseURL, appKey, appSecret } = options
+export function createApi(options: MahoOptions) {
+  const { baseURL, token } = options
 
   // axios 拦截器
   const api = axios.create({
@@ -14,8 +13,7 @@ export function createApi(options: CreateApiOptions) {
 
   // 鉴权加密处理headers，下次请求自动带上
   api.interceptors.request.use((config) => {
-    const headers = getEncodeHeader(config.data, appKey, appSecret)
-    config.headers = headers as any
+    config.headers['Authorization'] = token
     return config
   })
 

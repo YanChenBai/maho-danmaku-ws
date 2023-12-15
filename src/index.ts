@@ -2,7 +2,7 @@ import { LiveWS } from 'bilibili-live-ws'
 import {
   BiliRequestConfig,
   BiliStart,
-  CreateApiOptions,
+  MahoOptions,
   DM,
   DanmakuMessage,
   Gift,
@@ -18,14 +18,11 @@ import { createApi } from './utils/api'
 
 /** 弹幕监听器 */
 class Monitor {
-  /** 身份码 */
-  code: string
-
   /** axios对象 */
   api: AxiosInstance
 
   /** 连接配置 */
-  options: CreateApiOptions
+  options: MahoOptions
 
   gameId?: string
 
@@ -33,8 +30,7 @@ class Monitor {
 
   timer?: NodeJS.Timeout
 
-  constructor(code: string, options: CreateApiOptions) {
-    this.code = code
+  constructor(options: MahoOptions) {
     this.options = options
     this.api = createApi(options)
   }
@@ -45,11 +41,14 @@ class Monitor {
     this.live && (await this.close())
 
     // 鉴权
-    await this.auth()
+    const authRes = await this.auth()
+    this.checkError(authRes)
+    console.log(authRes)
 
     // 开始
     const startRes = await this.startGame()
     this.checkError(startRes)
+
     const {
       data: { data }
     } = startRes
@@ -100,8 +99,7 @@ class Monitor {
 
   /**  鉴权签名接口 */
   async auth() {
-    const res = await this.api.post<BiliStart>('/v2/app/start', {})
-    if (res.data.code === -400) res.data.code = 0
+    const res = await this.api.get<BiliRequestConfig>('/auth')
     return res
   }
 
@@ -110,9 +108,8 @@ class Monitor {
    * @comment 注意所有的接口基于鉴权成功后才能正确返回
    */
   async startGame() {
-    return await this.api.post<BiliStart>('/v2/app/start', {
-      code: this.code,
-      app_id: this.options.appId
+    return await this.api.post<BiliStart>('/start', {
+      code: this.options.code
     })
   }
 
@@ -120,9 +117,8 @@ class Monitor {
   // @retry(5)
   async endGame() {
     this.checkGameId()
-    const res = await this.api.post<BiliRequestConfig>('/v2/app/end', {
-      game_id: this.gameId,
-      app_id: this.options.appId
+    const res = await this.api.post<BiliRequestConfig>('/end', {
+      game_id: this.gameId
     })
     if (res.data.code !== 0) throw new Error(res.data.message)
     return res
@@ -131,7 +127,7 @@ class Monitor {
   /** 心跳接口 */
   async heartBeat() {
     try {
-      const res = await this.api.post<BiliRequestConfig>('/v2/app/heartbeat', {
+      const res = await this.api.post<BiliRequestConfig>('/heartbeat', {
         game_id: this.gameId
       })
       if (res.data.code !== 0) throw new Error(res.data.message)
