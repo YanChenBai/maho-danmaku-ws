@@ -1,5 +1,4 @@
 import { LiveWS } from 'bilibili-live-ws'
-import { logger } from './utils/logger'
 import {
   BiliRequestConfig,
   BiliStart,
@@ -13,9 +12,9 @@ import {
   Like,
   DanmakuCMD
 } from './types'
-import { AxiosInstance, AxiosResponse } from 'axios'
+import type { AxiosInstance, AxiosResponse } from 'axios'
 import { createApi } from './utils/api'
-import { retry } from './utils/retry'
+// import { retry } from './utils/retry'
 
 /** 弹幕监听器 */
 class Monitor {
@@ -41,10 +40,9 @@ class Monitor {
   }
 
   /**  连接弹幕服务器 */
-  @retry(3)
+  // @retry(3)
   async connect() {
     this.live && (await this.close())
-    logger.info('开始连接弹幕服务器...')
 
     // 鉴权
     await this.auth()
@@ -66,29 +64,24 @@ class Monitor {
     })
 
     // 事件绑定
-    this.live.on(DanmakuCMD.DM, (event: DanmakuMessage<DM>) => this.onDanmu(event.data))
-    this.live.on(DanmakuCMD.GIFT, (event: DanmakuMessage<Gift>) => this.onGift(event.data))
-    this.live.on(DanmakuCMD.GUARD_BUY, (event: DanmakuMessage<GuardBuy>) =>
-      this.onGuardBuy(event.data)
-    )
+    this.live.on(DanmakuCMD.DM, (event: DanmakuMessage<DM>) => this.onDanmu(event))
+    this.live.on(DanmakuCMD.GIFT, (event: DanmakuMessage<Gift>) => this.onGift(event))
+    this.live.on(DanmakuCMD.GUARD_BUY, (event: DanmakuMessage<GuardBuy>) => this.onGuardBuy(event))
     this.live.on(DanmakuCMD.SUPER_CHAT, (event: DanmakuMessage<SuperChat>) =>
-      this.onSuperChat(event.data)
+      this.onSuperChat(event)
     )
     this.live.on(DanmakuCMD.SUPER_CHAT_DEL, (event: DanmakuMessage<SuperChatDel>) =>
-      this.onSuperChatDel(event.data)
+      this.onSuperChatDel(event)
     )
-    this.live.on(DanmakuCMD.LIKE, (event: DanmakuMessage<Like>) => this.onLike(event.data))
+    this.live.on(DanmakuCMD.LIKE, (event: DanmakuMessage<Like>) => this.onLike(event))
 
     await this.heartBeat()
     // 开始心跳
     this.timer = setInterval(() => this.heartBeat(), 20000)
-
-    logger.info('连接成功...')
   }
 
   /** 重连 */
   async reconnect() {
-    logger.info('正在重连...')
     await this.close()
     await this.connect()
   }
@@ -124,7 +117,7 @@ class Monitor {
   }
 
   /** 互动玩法游戏结束接口 */
-  @retry(5)
+  // @retry(5)
   async endGame() {
     this.checkGameId()
     const res = await this.api.post<BiliRequestConfig>('/v2/app/end', {
@@ -143,7 +136,6 @@ class Monitor {
       })
       if (res.data.code !== 0) throw new Error(res.data.message)
     } catch (error) {
-      logger.error(error)
       this.connect()
     }
   }
@@ -151,7 +143,6 @@ class Monitor {
   /** 关闭实例 */
   async close() {
     if (!this.live) throw new Error('live is undefined')
-    logger.info('关闭中...')
     // 关闭ws连接
     this.live.close()
 
@@ -168,22 +159,22 @@ class Monitor {
   }
 
   /** 收到普通弹幕 */
-  onDanmu(msg: DM) {}
+  onDanmu(_msg: DanmakuMessage<DM>) {}
 
   /** 收到礼物 */
-  onGift(msg: Gift) {}
+  onGift(_msg: DanmakuMessage<Gift>) {}
 
   /** 收到大航海 */
-  onGuardBuy(msg: GuardBuy) {}
+  onGuardBuy(_msg: DanmakuMessage<GuardBuy>) {}
 
   /** 收到SC */
-  onSuperChat(msg: SuperChat) {}
+  onSuperChat(_msg: DanmakuMessage<SuperChat>) {}
 
   /** 收到SC下线 */
-  onSuperChatDel(msg: SuperChatDel) {}
+  onSuperChatDel(_msg: DanmakuMessage<SuperChatDel>) {}
 
   /** 收到点赞 */
-  onLike(msg: Like) {}
+  onLike(_msg: DanmakuMessage<Like>) {}
 }
 
 export default Monitor

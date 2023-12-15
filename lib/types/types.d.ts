@@ -106,7 +106,11 @@ export interface ComboInfo {
     /** 连击有效期秒 */
     combo_timeout: number;
 }
-export interface GiftBase extends UserInfo, FansInfo, MessageData {
+/**
+ * 礼物消息
+ * @comment room_id 直播间(演播厅模式则为演播厅直播间,非演播厅模式则为收礼直播间)
+ * */
+export interface Gift extends UserInfo, FansInfo, MessageData {
     gift_id: number;
     gift_name: string;
     gift_num: number;
@@ -115,16 +119,8 @@ export interface GiftBase extends UserInfo, FansInfo, MessageData {
     anchor_info: UserInfo;
     gift_icon: string;
     combo_gift: boolean;
+    combo_info?: ComboInfo;
 }
-export interface GiftCombo extends GiftBase {
-    combo_gift: boolean;
-    combo_info: ComboInfo;
-}
-/**
- * 礼物消息
- * @comment room_id 直播间(演播厅模式则为演播厅直播间,非演播厅模式则为收礼直播间)
- * */
-export type Gift = GiftBase | GiftCombo;
 /** SC */
 export interface SuperChat extends UserInfo, FansInfo, MessageData {
     message_id: number;

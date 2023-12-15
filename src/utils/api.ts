@@ -1,9 +1,8 @@
-import type { AxiosResponse, AxiosStatic } from 'axios'
+import axios from 'axios'
+import type { AxiosResponse } from 'axios'
 import { getEncodeHeader } from './encode'
 import { CODE_MESSAGE } from './error-code'
-import { logger } from './logger'
 import { BiliRequestConfig, CreateApiOptions } from '../types'
-const axios = require('axios/dist/browser/axios.cjs') as AxiosStatic
 
 export function createApi(options: CreateApiOptions) {
   const { baseURL, appKey, appSecret } = options
@@ -24,11 +23,7 @@ export function createApi(options: CreateApiOptions) {
   api.interceptors.response.use((res: AxiosResponse<BiliRequestConfig>) => {
     const { code } = res.data
     if (CODE_MESSAGE[code]) {
-      logger.error(CODE_MESSAGE[code], '--->', {
-        url: res.config.url,
-        data: res.config.data,
-        params: res.config.params
-      })
+      throw new Error(CODE_MESSAGE[code])
     }
     return res
   })

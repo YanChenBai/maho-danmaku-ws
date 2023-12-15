@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { LiveWS } from 'bilibili-live-ws';
-import { BiliRequestConfig, BiliStart, CreateApiOptions, DM, Gift, SuperChat, SuperChatDel, GuardBuy, Like } from './types';
-import { AxiosInstance, AxiosResponse } from 'axios';
+import { BiliRequestConfig, BiliStart, CreateApiOptions, DM, DanmakuMessage, Gift, SuperChat, SuperChatDel, GuardBuy, Like } from './types';
+import type { AxiosInstance, AxiosResponse } from 'axios';
 /** 弹幕监听器 */
 declare class Monitor {
     /** 身份码 */
@@ -36,16 +36,16 @@ declare class Monitor {
     /** 关闭实例 */
     close(): Promise<void>;
     /** 收到普通弹幕 */
-    onDanmu(msg: DM): void;
+    onDanmu(_msg: DanmakuMessage<DM>): void;
     /** 收到礼物 */
-    onGift(msg: Gift): void;
+    onGift(_msg: DanmakuMessage<Gift>): void;
     /** 收到大航海 */
-    onGuardBuy(msg: GuardBuy): void;
+    onGuardBuy(_msg: DanmakuMessage<GuardBuy>): void;
     /** 收到SC */
-    onSuperChat(msg: SuperChat): void;
+    onSuperChat(_msg: DanmakuMessage<SuperChat>): void;
     /** 收到SC下线 */
-    onSuperChatDel(msg: SuperChatDel): void;
+    onSuperChatDel(_msg: DanmakuMessage<SuperChatDel>): void;
     /** 收到点赞 */
-    onLike(msg: Like): void;
+    onLike(_msg: DanmakuMessage<Like>): void;
 }
 export default Monitor;

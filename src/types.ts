@@ -128,7 +128,11 @@ export interface ComboInfo {
   combo_timeout: number
 }
 
-export interface GiftBase extends UserInfo, FansInfo, MessageData {
+/**
+ * 礼物消息
+ * @comment room_id 直播间(演播厅模式则为演播厅直播间,非演播厅模式则为收礼直播间)
+ * */
+export interface Gift extends UserInfo, FansInfo, MessageData {
   gift_id: number //道具id(盲盒:爆出道具id)
   gift_name: string //道具名(盲盒:爆出道具名)
   gift_num: number //赠送道具数量
@@ -137,18 +141,8 @@ export interface GiftBase extends UserInfo, FansInfo, MessageData {
   anchor_info: UserInfo
   gift_icon: string //道具icon  （新增）
   combo_gift: boolean //是否是combo道具
+  combo_info?: ComboInfo
 }
-
-export interface GiftCombo extends GiftBase {
-  combo_gift: boolean //是否是combo道具
-  combo_info: ComboInfo
-}
-
-/**
- * 礼物消息
- * @comment room_id 直播间(演播厅模式则为演播厅直播间,非演播厅模式则为收礼直播间)
- * */
-export type Gift = GiftBase | GiftCombo
 
 /** SC */
 export interface SuperChat extends UserInfo, FansInfo, MessageData {
