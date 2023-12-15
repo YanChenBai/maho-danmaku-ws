@@ -1,19 +1,17 @@
 /// <reference types="node" />
 import { LiveWS } from 'bilibili-live-ws';
-import { BiliRequestConfig, BiliStart, CreateApiOptions, DM, DanmakuMessage, Gift, SuperChat, SuperChatDel, GuardBuy, Like } from './types';
+import { BiliRequestConfig, BiliStart, MahoOptions, DM, DanmakuMessage, Gift, SuperChat, SuperChatDel, GuardBuy, Like } from './types';
 import type { AxiosInstance, AxiosResponse } from 'axios';
 /** 弹幕监听器 */
 declare class Monitor {
-    /** 身份码 */
-    code: string;
     /** axios对象 */
     api: AxiosInstance;
     /** 连接配置 */
-    options: CreateApiOptions;
+    options: MahoOptions;
     gameId?: string;
     live?: LiveWS;
     timer?: NodeJS.Timeout;
-    constructor(code: string, options: CreateApiOptions);
+    constructor(options: MahoOptions);
     /**  连接弹幕服务器 */
     connect(): Promise<void>;
     /** 重连 */
@@ -23,7 +21,7 @@ declare class Monitor {
     /** 检测game_id */
     checkGameId(): void;
     /**  鉴权签名接口 */
-    auth(): Promise<AxiosResponse<BiliStart, any>>;
+    auth(): Promise<AxiosResponse<BiliRequestConfig<{}>, any>>;
     /**
      * 测试请求游戏开启接口
      * @comment 注意所有的接口基于鉴权成功后才能正确返回
@@ -49,3 +47,4 @@ declare class Monitor {
     onLike(_msg: DanmakuMessage<Like>): void;
 }
 export default Monitor;
+//# sourceMappingURL=index.d.ts.map

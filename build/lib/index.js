@@ -15,8 +15,7 @@ const api_1 = require("./utils/api");
 // import { retry } from './utils/retry'
 /** 弹幕监听器 */
 class Monitor {
-    constructor(code, options) {
-        this.code = code;
+    constructor(options) {
         this.options = options;
         this.api = (0, api_1.createApi)(options);
     }
@@ -26,7 +25,9 @@ class Monitor {
         return __awaiter(this, void 0, void 0, function* () {
             this.live && (yield this.close());
             // 鉴权
-            yield this.auth();
+            const authRes = yield this.auth();
+            this.checkError(authRes);
+            console.log(authRes);
             // 开始
             const startRes = yield this.startGame();
             this.checkError(startRes);
@@ -71,9 +72,7 @@ class Monitor {
     /**  鉴权签名接口 */
     auth() {
         return __awaiter(this, void 0, void 0, function* () {
-            const res = yield this.api.post('/v2/app/start', {});
-            if (res.data.code === -400)
-                res.data.code = 0;
+            const res = yield this.api.get('/auth');
             return res;
         });
     }
@@ -83,9 +82,8 @@ class Monitor {
      */
     startGame() {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.api.post('/v2/app/start', {
-                code: this.code,
-                app_id: this.options.appId
+            return yield this.api.post('/start', {
+                code: this.options.code
             });
         });
     }
@@ -94,9 +92,8 @@ class Monitor {
     endGame() {
         return __awaiter(this, void 0, void 0, function* () {
             this.checkGameId();
-            const res = yield this.api.post('/v2/app/end', {
-                game_id: this.gameId,
-                app_id: this.options.appId
+            const res = yield this.api.post('/end', {
+                game_id: this.gameId
             });
             if (res.data.code !== 0)
                 throw new Error(res.data.message);
@@ -107,7 +104,7 @@ class Monitor {
     heartBeat() {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const res = yield this.api.post('/v2/app/heartbeat', {
+                const res = yield this.api.post('/heartbeat', {
                     game_id: this.gameId
                 });
                 if (res.data.code !== 0)

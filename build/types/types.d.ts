@@ -1,9 +1,11 @@
 /** 创建api的配置 */
-export interface CreateApiOptions {
+export interface MahoOptions {
+    /** 服务器地址 */
     baseURL: string;
-    appKey: string;
-    appSecret: string;
-    appId: number;
+    /** 身份码 */
+    code: string;
+    /** 密钥 */
+    token: string;
 }
 /** 开平的响应结构 */
 export interface BiliRequestConfig<T = {}> {
@@ -144,3 +146,4 @@ export interface Like extends UserInfo, Omit<FansInfo, 'guard_level'>, MessageDa
     like_text: string;
     like_count: number;
 }
+//# sourceMappingURL=types.d.ts.map

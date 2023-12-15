@@ -18,7 +18,7 @@ var DanmakuCMD;
     DanmakuCMD["GUARD_BUY"] = "LIVE_OPEN_PLATFORM_GUARD";
     /** 点赞 */
     DanmakuCMD["LIKE"] = "LIVE_OPEN_PLATFORM_LIKE";
-})(DanmakuCMD || (exports.DanmakuCMD = DanmakuCMD = {}));
+})(DanmakuCMD = exports.DanmakuCMD || (exports.DanmakuCMD = {}));
 /**
  * 对应房间大航海
  */
@@ -32,7 +32,7 @@ var GuardLevel;
     GuardLevel[GuardLevel["Tidu"] = 2] = "Tidu";
     /** 舰长 */
     GuardLevel[GuardLevel["Jianzhang"] = 3] = "Jianzhang";
-})(GuardLevel || (exports.GuardLevel = GuardLevel = {}));
+})(GuardLevel = exports.GuardLevel || (exports.GuardLevel = {}));
 /** 弹幕类型 */
 var DMType;
 (function (DMType) {
@@ -40,4 +40,4 @@ var DMType;
     DMType[DMType["Normal"] = 0] = "Normal";
     /** 表情包弹幕 */
     DMType[DMType["EMOJI"] = 1] = "EMOJI";
-})(DMType || (exports.DMType = DMType = {}));
+})(DMType = exports.DMType || (exports.DMType = {}));
