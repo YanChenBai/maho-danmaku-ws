@@ -85,12 +85,6 @@ export enum DMType {
   EMOJI
 }
 
-/** 事件消息体 */
-export interface DanmakuMessage<T> {
-  cmd: DanmakuCMD
-  data: T
-}
-
 /** 用户信息 */
 export interface UserInfo {
   uid: number //用户uid
@@ -172,3 +166,36 @@ export interface Like extends UserInfo, Omit<FansInfo, 'guard_level'>, MessageDa
   like_text: string
   like_count: number
 }
+
+export type DanmakuData = Gift | SuperChat | SuperChatDel | GuardBuy | Like | DM
+/** 事件消息体 */
+export interface DanmakuMessage<T extends DanmakuData> {
+  cmd: DanmakuCMD
+  data: T
+}
+
+export interface DmMsg extends DanmakuMessage<DM> {
+  cmd: DanmakuCMD.DM
+}
+
+export interface GiftMsg extends DanmakuMessage<Gift> {
+  cmd: DanmakuCMD.GIFT
+}
+
+export interface SuperChatMsg extends DanmakuMessage<SuperChat> {
+  cmd: DanmakuCMD.SUPER_CHAT
+}
+
+export interface SuperChatDelMsg extends DanmakuMessage<SuperChatDel> {
+  cmd: DanmakuCMD.SUPER_CHAT_DEL
+}
+
+export interface GuardBuyMsg extends DanmakuMessage<GuardBuy> {
+  cmd: DanmakuCMD.GUARD_BUY
+}
+
+export interface LikeMsg extends DanmakuMessage<Like> {
+  cmd: DanmakuCMD.LIKE
+}
+
+export type AllMsg = DmMsg | GiftMsg | SuperChatMsg | SuperChatDelMsg | GuardBuyMsg | LikeMsg
